@@ -16,6 +16,11 @@ namespace EmployeeManagementApp.Models
         // Initialize with empty string
         public string Department { get; set; } = string.Empty;
 
+        [Required]
+        [EmailAddress] // Checks for @ symbol and domain
+        [Display(Name = "Office Email")]
+        public string Email { get; set; } = string.Empty;
+
         [Range(0, 1000000)]
         public decimal Salary { get; set; }
 
