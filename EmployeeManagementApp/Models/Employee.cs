@@ -14,7 +14,12 @@ namespace EmployeeManagementApp.Models
 
         [Required]
         // Initialize with empty string
-        public string Department { get; set; } = string.Empty;
+        // Foreign Key (This stores the ID, e.g., 1, 2, 5)
+        [Display(Name = "Department")]
+        public int DepartmentId { get; set; }
+
+        // Navigation Property (This lets us access the related Department object like 'emp.Department.Name')
+        public Department? Department { get; set; }
 
         [Required]
         [EmailAddress] // Checks for @ symbol and domain
