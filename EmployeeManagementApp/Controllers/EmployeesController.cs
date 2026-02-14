@@ -12,10 +12,12 @@ namespace EmployeeManagementApp.Controllers
     public class EmployeesController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public EmployeesController(AppDbContext context)
+        public EmployeesController(AppDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Employees
@@ -43,6 +45,7 @@ namespace EmployeeManagementApp.Controllers
             }
 
             var employee = await _context.Employees
+                .Include(e => e.Department)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (employee == null)
             {
@@ -64,19 +67,43 @@ namespace EmployeeManagementApp.Controllers
         // POST: Employees/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FullName,DepartmentId,Salary,DateOfJoining,Email")] Employee employee)
+        public async Task<IActionResult> Create(Employee employee)
         {
             if (ModelState.IsValid)
             {
+                // Check if a file was uploaded
+                if (employee.ProfileImage != null)
+                {
+                    // 1. Create a folder path: wwwroot/images
+                    string folder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
+
+                    // 2. Create a unique file name (so "john.jpg" doesn't overwrite another "john.jpg")
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + employee.ProfileImage.FileName;
+
+                    // 3. Complete path
+                    string filePath = Path.Combine(folder, uniqueFileName);
+
+                    // 4. Copy the file to the server
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await employee.ProfileImage.CopyToAsync(stream);
+                    }
+
+                    // 5. Save ONLY the file name to the database
+                    employee.ProfilePicture = uniqueFileName;
+                }
+
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            // If error, reload the list!
+
+            // Reload Department list if error
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
             return View(employee);
         }
 
+        // GET: Employees/Edit/5
         // GET: Employees/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -91,13 +118,10 @@ namespace EmployeeManagementApp.Controllers
                 return NotFound();
             }
 
-            // 1. Create a list of Departments (In the real world, this comes from a database)
-            List<string> departments = new List<string> { "IT", "HR", "Finance", "Marketing", "Sales", "Development" };
+            // CRITICAL FIX: We must load the dropdown from the Database!
+            // The last parameter 'employee.DepartmentId' tells the dropdown: "Select this one by default"
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
 
-            // 2. Put it in the "ViewBag" (a backpack to carry data to the View)
-            // We use "SelectList" because the Dropdown needs a specific format
-            // The second argument 'employee.Department' tells the list which item to select by default
-            ViewBag.DeptList = new SelectList(departments, employee.Department);
             return View(employee);
         }
 
@@ -106,8 +130,8 @@ namespace EmployeeManagementApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // CHANGE 1: Add "Email" here too
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Department,Salary,DateOfJoining,Email")] Employee employee)
+        // FIX: Bind "DepartmentId" instead of "Department"
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,DepartmentId,Salary,DateOfJoining,Email")] Employee employee)
         {
             if (id != employee.Id)
             {
@@ -135,9 +159,8 @@ namespace EmployeeManagementApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // CHANGE 2: Reload the dropdown list here too!
-            List<string> departments = new List<string> { "IT", "HR", "Finance", "Marketing", "Sales" };
-            ViewBag.DeptList = new SelectList(departments, employee.Department);
+            // FIX: If validation fails, RELOAD the dropdown so it doesn't crash or go empty
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
 
             return View(employee);
         }
@@ -151,6 +174,7 @@ namespace EmployeeManagementApp.Controllers
             }
 
             var employee = await _context.Employees
+                .Include(e => e.Department)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (employee == null)
             {

@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema; // Need this for [NotMapped]
+using Microsoft.AspNetCore.Http;
 
 namespace EmployeeManagementApp.Models
 {
@@ -32,5 +34,12 @@ namespace EmployeeManagementApp.Models
         [DataType(DataType.Date)]
         [Display(Name = "Date of Joining")]
         public DateTime DateOfJoining { get; set; }
+
+        [Display(Name = "Profile Picture")]
+        public string? ProfilePicture { get; set; } // Stores "john.jpg"
+
+        [NotMapped] // This tells EF Core: "Do not create a column for this!"
+        [Display(Name = "Upload Image")]
+        public IFormFile? ProfileImage { get; set; } // Handles the actual file upload
     }
 }
