@@ -6,6 +6,17 @@
 
 <h1>Details</h1>
 
+<div class="text-center mb-4">
+    @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+    {
+        <img src="~/images/@Model.ProfilePicture" width="150" height="150" class="rounded-circle shadow" />
+    }
+    else
+    {
+        <img src="~/images/default.png" width="150" height="150" class="rounded-circle shadow" />
+    }
+</div>
+
 <div>
     <h4>Employee</h4>
     <hr />

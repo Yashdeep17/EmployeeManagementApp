@@ -58,9 +58,18 @@
                 @Html.DisplayFor(modelItem => item.DateOfJoining)
             </td>
                 <td>
-                    <img src="~/images/@item.ProfilePicture"
-                         width="50" height="50" class="rounded-circle"
-                         alt="Profile" />
+                    @if (!string.IsNullOrEmpty(item.ProfilePicture))
+                    {
+                        <img src="~/images/@item.ProfilePicture"
+                             width="50" height="50" class="rounded-circle"
+                             style="object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <img src="~/images/default.png"
+                             width="50" height="50" class="rounded-circle"
+                             style="object-fit: cover;" />
+                    }
                 </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
