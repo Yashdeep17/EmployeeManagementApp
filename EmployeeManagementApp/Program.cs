@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using EmployeeManagementApp.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<EmployeeManagementApp.Models.AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // --- PASTE THIS BLOCK END ---
+// Add Identity (Security)
+builder.Services.AddDefaultIdentity<Microsoft.AspNetCore.Identity.IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<EmployeeManagementApp.Models.AppDbContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -27,11 +32,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapRazorPages();
 
 app.Run();

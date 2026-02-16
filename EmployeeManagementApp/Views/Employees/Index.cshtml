@@ -1,82 +1,62 @@
 ﻿@model IEnumerable<EmployeeManagementApp.Models.Employee>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Employee Directory";
 }
 
-<h1>Index</h1>
-<form asp-controller="Employees" asp-action="Index" method="get">
-    <div class="input-group mb-3">
-        <input type="text" name="SearchString" class="form-control" placeholder="Search by Name...">
-        <button class="btn btn-primary" type="submit">Search</button>
-    </div>
-</form>
+<h1 class="text-center mb-4">Employee Directory</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Department)
-            </th>
-            <th>
-                @Html.DisplayNameFor(Model => Model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Salary)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DateOfJoining)
-            </th>
-            <th>
-                Profile
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Department.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Salary)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateOfJoining)
-            </td>
-                <td>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a asp-action="Create" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-circle"></i> Add New Employee
+    </a>
+
+    <form asp-controller="Employees" asp-action="Index" method="get" class="d-flex">
+        <input type="text" name="SearchString" class="form-control me-2" placeholder="Search name...">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+</div>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm">
+
+                <div class="text-center mt-3">
                     @if (!string.IsNullOrEmpty(item.ProfilePicture))
                     {
                         <img src="~/images/@item.ProfilePicture"
-                             width="50" height="50" class="rounded-circle"
-                             style="object-fit: cover;" />
+                             class="rounded-circle border"
+                             style="width: 120px; height: 120px; object-fit: cover;"
+                             alt="Profile Picture">
                     }
                     else
                     {
                         <img src="~/images/default.png"
-                             width="50" height="50" class="rounded-circle"
-                             style="object-fit: cover;" />
+                             class="rounded-circle border"
+                             style="width: 120px; height: 120px; object-fit: cover;"
+                             alt="Default Profile">
                     }
-                </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                </div>
+
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">@item.FullName</h5>
+
+                    <span class="badge bg-secondary mb-2">@item.Department.Name</span>
+
+                    <p class="card-text text-muted">
+                        <small>Joined: @item.DateOfJoining.ToShortDateString()</small><br />
+                        <strong>@item.Email</strong>
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-around pb-3">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Delete</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
