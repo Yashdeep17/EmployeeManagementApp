@@ -1,4 +1,6 @@
 ﻿@model IEnumerable<EmployeeManagementApp.Models.Employee>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
 
 @{
     ViewData["Title"] = "Employee Directory";
@@ -7,9 +9,12 @@
 <h1 class="text-center mb-4">Employee Directory</h1>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <a asp-action="Create" class="btn btn-primary btn-lg">
-        <i class="bi bi-plus-circle"></i> Add New Employee
-    </a>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <a asp-action="Create" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle"></i> Add New Employee
+        </a>
+    }
 
     <form asp-controller="Employees" asp-action="Index" method="get" class="d-flex">
         <input type="text" name="SearchString" class="form-control me-2" placeholder="Search name...">
@@ -52,9 +57,13 @@
                 </div>
 
                 <div class="card-footer bg-white border-top-0 d-flex justify-content-around pb-3">
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Edit</a>
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Delete</a>
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Delete</a>
+                    }
                 </div>
             </div>
         </div>

@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using EmployeeManagementApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using EmployeeManagementApp.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EmployeeManagementApp.Controllers
 {
@@ -57,6 +58,7 @@ namespace EmployeeManagementApp.Controllers
 
         // GET: Employees/Create
         // GET: Employees/Create
+        [Authorize]
         public IActionResult Create()
         {
             // Fetch departments from DB. "Id" is the value saved, "Name" is the text shown.
@@ -66,6 +68,7 @@ namespace EmployeeManagementApp.Controllers
 
         // POST: Employees/Create
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Employee employee)
         {
@@ -105,6 +108,7 @@ namespace EmployeeManagementApp.Controllers
 
         // GET: Employees/Edit/5
         // GET: Employees/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -129,6 +133,7 @@ namespace EmployeeManagementApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         // FIX: Bind "DepartmentId" instead of "Department"
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,DepartmentId,Salary,DateOfJoining,Email")] Employee employee)
@@ -166,6 +171,7 @@ namespace EmployeeManagementApp.Controllers
         }
 
         // GET: Employees/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -186,6 +192,7 @@ namespace EmployeeManagementApp.Controllers
 
         // POST: Employees/Delete/5
         [HttpPost, ActionName("Delete")]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
