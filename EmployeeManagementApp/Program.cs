@@ -12,8 +12,9 @@ builder.Services.AddDbContext<EmployeeManagementApp.Models.AppDbContext>(options
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // --- PASTE THIS BLOCK END ---
 // Add Identity (Security)
-builder.Services.AddDefaultIdentity<Microsoft.AspNetCore.Identity.IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<EmployeeManagementApp.Models.AppDbContext>();
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

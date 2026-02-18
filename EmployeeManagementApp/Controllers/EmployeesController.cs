@@ -171,7 +171,7 @@ namespace EmployeeManagementApp.Controllers
         }
 
         // GET: Employees/Delete/5
-        [Authorize]
+        [Authorize(Roles = "Admin")] // <--- THE SECURITY GUARD
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -192,8 +192,8 @@ namespace EmployeeManagementApp.Controllers
 
         // POST: Employees/Delete/5
         [HttpPost, ActionName("Delete")]
-        [Authorize]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")] // <--- DOUBLE LOCK
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var employee = await _context.Employees.FindAsync(id);
