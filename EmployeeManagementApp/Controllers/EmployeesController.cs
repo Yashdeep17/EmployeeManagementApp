@@ -98,6 +98,7 @@ namespace EmployeeManagementApp.Controllers
 
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Employee created successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -161,6 +162,7 @@ namespace EmployeeManagementApp.Controllers
                         throw;
                     }
                 }
+                TempData["Success"] = "Employee Updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
