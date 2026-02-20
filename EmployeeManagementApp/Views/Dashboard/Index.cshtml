@@ -1,0 +1,86 @@
+﻿@model EmployeeManagementApp.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h1 class="mb-4">Business Analytics Dashboard</h1>
+
+<div class="row mb-5 text-center">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary shadow">
+            <div class="card-body">
+                <h5 class="card-title">Total Employees</h5>
+                <h2 class="display-4">@Model.TotalEmployees</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success shadow">
+            <div class="card-body">
+                <h5 class="card-title">Total Departments</h5>
+                <h2 class="display-4">@Model.TotalDepartments</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-danger shadow">
+            <div class="card-body">
+                <h5 class="card-title">Monthly Salary Expense</h5>
+                <h2 class="display-4">@Model.TotalSalaryExpense.ToString("C0")</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="m-0">Headcount by Department</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="departmentChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // 2. Safely convert our C# Dictionary into JavaScript Arrays
+        const labels = @Html.Raw(Json.Serialize(Model.DepartmentHeadcounts.Keys));
+        const dataValues = @Html.Raw(Json.Serialize(Model.DepartmentHeadcounts.Values));
+
+        // 3. Draw the Chart
+        const ctx = document.getElementById('departmentChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut', // 'pie' or 'doughnut' look great
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Employees',
+                    data: dataValues,
+                    backgroundColor: [
+                        '#0d6efd', // Blue
+                        '#198754', // Green
+                        '#dc3545', // Red
+                        '#ffc107', // Yellow
+                        '#0dcaf0'  // Cyan
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    </script>
+}
