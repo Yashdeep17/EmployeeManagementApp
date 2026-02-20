@@ -2,7 +2,52 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5 text-center">
+    <h1 class="display-4 fw-bold text-primary mb-3">Enterprise HR Platform</h1>
+    <p class="lead text-muted mb-5">
+        A modern, secure, and intelligent system to manage your workforce, analyze department metrics, and streamline operations.
+    </p>
+    
+    <div class="d-flex justify-content-center gap-3 mb-5">
+        <a asp-controller="Employees" asp-action="Index" class="btn btn-primary btn-lg px-4 shadow-sm">
+            Go to Directory
+        </a>
+        
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-dark btn-lg px-4 shadow-sm">
+                View Analytics
+            </a>
+        }
+    </div>
+</div>
+
+<div class="container px-4 py-5" id="featured-3">
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3 text-center border-top">
+        
+        <div class="col">
+            <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-4 mx-auto shadow" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+                📁
+            </div>
+            <h2 class="h4 fw-bold">Centralized Directory</h2>
+            <p class="text-muted">Easily manage employee records, profile pictures, and departmental assignments in one secure, unified location.</p>
+        </div>
+        
+        <div class="col">
+            <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-4 mx-auto shadow" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+                📊
+            </div>
+            <h2 class="h4 fw-bold">Real-Time Analytics</h2>
+            <p class="text-muted">Gain instant insights into company headcount and payroll distribution with dynamic, interactive dashboards.</p>
+        </div>
+        
+        <div class="col">
+            <div class="feature-icon bg-danger bg-gradient text-white rounded-circle mb-4 mx-auto shadow" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+                🔒
+            </div>
+            <h2 class="h4 fw-bold">Enterprise Security</h2>
+            <p class="text-muted">Built with robust role-based access control (RBAC) ensuring sensitive data is only accessible to authorized administrators.</p>
+        </div>
+
+    </div>
 </div>
