@@ -38,6 +38,9 @@ namespace EmployeeManagementApp.Models
         [Display(Name = "Profile Picture")]
         public string? ProfilePicture { get; set; } // Stores "john.jpg"
 
+        [NotMapped] // Don't save this to the database
+        public string? CroppedImageData { get; set; } // Holds the cropped image text
+
         [NotMapped] // This tells EF Core: "Do not create a column for this!"
         [Display(Name = "Upload Image")]
         public IFormFile? ProfileImage { get; set; } // Handles the actual file upload

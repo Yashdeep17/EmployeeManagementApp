@@ -1,4 +1,5 @@
 ﻿@model EmployeeManagementApp.Models.Employee
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
 
 @{
     ViewData["Title"] = "Create";
@@ -38,10 +39,15 @@
                 <input asp-for="DateOfJoining" class="form-control" />
                 <span asp-validation-for="DateOfJoining" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ProfileImage" class="control-label"></label>
-                <input asp-for="ProfileImage" class="form-control" type="file" />
-                <span asp-validation-for="ProfileImage" class="text-danger"></span>
+            <div class="form-group mb-3">
+                <label asp-for="ProfileImage" class="control-label">Profile Picture (Auto-Cropper)</label>
+                <input asp-for="ProfileImage" class="form-control" type="file" id="imageInput" accept="image/*" />
+
+                <input type="hidden" asp-for="CroppedImageData" id="croppedImageData" />
+
+                <div class="mt-3 text-center">
+                    <img id="imagePreview" src="~/images/default.png" class="rounded-circle shadow-sm" style="width: 150px; height: 150px; object-fit: cover; display: none;" />
+                </div>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -54,6 +60,78 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+<div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Crop Profile Picture</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div style="max-height: 500px; overflow: hidden;">
+                    <img id="imageToCrop" style="max-width: 100%; display: block;" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="cropButton">Apply Crop</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+        let cropper;
+        const imageInput = document.getElementById('imageInput');
+        const imageToCrop = document.getElementById('imageToCrop');
+        const imagePreview = document.getElementById('imagePreview');
+        const croppedImageData = document.getElementById('croppedImageData');
+        const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+
+        // 1. When user selects a file, open the modal and load the image
+        imageInput.addEventListener('change', function (e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const url = URL.createObjectURL(file);
+                imageToCrop.src = url;
+                cropModal.show();
+            }
+        });
+
+        // 2. Initialize Cropper.js exactly when the modal is fully visible
+        document.getElementById('cropModal').addEventListener('shown.bs.modal', function () {
+            if (cropper) { cropper.destroy(); }
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: 1, // Forces a perfect square!
+                viewMode: 1,
+                autoCropArea: 1,
+            });
+        });
+
+        // 3. When the user clicks "Apply Crop"
+        document.getElementById('cropButton').addEventListener('click', function () {
+            // Get the cropped canvas area
+            const canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300
+            });
+
+            // Convert the canvas to a Base64 text string
+            const base64Data = canvas.toDataURL('image/png');
+
+            // Put that text into our hidden input field
+            croppedImageData.value = base64Data;
+
+            // Show the preview on the main form
+            imagePreview.src = base64Data;
+            imagePreview.style.display = 'inline-block';
+
+            // Close modal
+            cropModal.hide();
+        });
+    </script>
 }

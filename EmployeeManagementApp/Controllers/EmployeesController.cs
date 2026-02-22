@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace EmployeeManagementApp.Controllers
 {
@@ -75,24 +76,24 @@ namespace EmployeeManagementApp.Controllers
             if (ModelState.IsValid)
             {
                 // Check if a file was uploaded
-                if (employee.ProfileImage != null)
+                // Check if we received cropped image data
+                if (!string.IsNullOrEmpty(employee.CroppedImageData))
                 {
-                    // 1. Create a folder path: wwwroot/images
+                    // 1. The data looks like "data:image/png;base64,iVBORw0KGgo...", we only want the text AFTER the comma
+                    var base64Data = Regex.Match(employee.CroppedImageData, @"data:image/(?<type>.+?),(?<data>.+)").Groups["data"].Value;
+
+                    // 2. Convert text back to raw computer bytes
+                    var bytes = Convert.FromBase64String(base64Data);
+
+                    // 3. Create a unique file name
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_profile.png";
                     string folder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-
-                    // 2. Create a unique file name (so "john.jpg" doesn't overwrite another "john.jpg")
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + employee.ProfileImage.FileName;
-
-                    // 3. Complete path
                     string filePath = Path.Combine(folder, uniqueFileName);
 
-                    // 4. Copy the file to the server
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await employee.ProfileImage.CopyToAsync(stream);
-                    }
+                    // 4. Save the bytes as a real file on the server
+                    await System.IO.File.WriteAllBytesAsync(filePath, bytes);
 
-                    // 5. Save ONLY the file name to the database
+                    // 5. Save the file name to the database
                     employee.ProfilePicture = uniqueFileName;
                 }
 
