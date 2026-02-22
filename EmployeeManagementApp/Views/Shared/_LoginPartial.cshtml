@@ -8,9 +8,9 @@
         var shortName = fullEmail.Contains("@") ? fullEmail.Split('@')[0] : fullEmail;
 
         <li class="nav-item me-3 mb-2 mb-sm-0">
-            <a class="nav-link bg-light rounded-pill px-3 py-1 border shadow-sm text-dark fw-medium d-flex align-items-center text-decoration-none" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage Account">
+            <a class="nav-link border border-secondary-subtle rounded-pill px-3 py-1 shadow-sm d-flex align-items-center text-decoration-none text-body-emphasis" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage Account">
                 <i class="bi bi-person-circle fs-5 me-2 text-primary"></i>
-                @shortName
+                <span class="fw-bold">@shortName</span>
             </a>
         </li>
         <li class="nav-item">
@@ -24,7 +24,7 @@
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark fw-semibold px-3" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            <a class="nav-link fw-semibold px-3" asp-area="Identity" asp-page="/Account/Register">Register</a>
         </li>
         <li class="nav-item ms-2">
             <a class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" asp-area="Identity" asp-page="/Account/Login">
