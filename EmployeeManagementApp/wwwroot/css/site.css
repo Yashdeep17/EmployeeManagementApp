@@ -20,3 +20,58 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Custom Global Theme Colors */
+/* NEW Professional Blue Theme */
+:root {
+    /* A deep, trustworthy blue primary color */
+    --bs-primary: #0d6efd;
+    --bs-primary-rgb: 13, 110, 253;
+    --bs-primary-hover: #0b5ed7;
+}
+
+/* A style for the new full-screen background */
+.login-background-container {
+    /* Use a professional placeholder image from Unsplash */
+    background: url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+    background-size: cover;
+    /* Add a dark blue gradient overlay so white text pops */
+    position: relative;
+}
+
+    /* The overlay layer */
+    .login-background-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        /* A deep blue-to-teal gradient fade */
+        background: linear-gradient(135deg, rgba(13, 110, 253, 0.8) 0%, rgba(13, 202, 240, 0.6) 100%);
+        z-index: 1;
+    }
+
+/* Ensure the content sits above the overlay */
+.login-content-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+.text-primary {
+    color: var(--bs-primary) !important;
+}
+
+/* Glassmorphism Effect */
+.glassy-card {
+    background: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+    backdrop-filter: blur(15px) saturate(180%); /* The "frost" and vibrancy */
+    -webkit-backdrop-filter: blur(15px) saturate(180%); /* For Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Subtle white border */
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); /* Soft shadow */
+}
+
+    /* Ensure input labels are readable on the glassy background */
+    .glassy-card .form-floating label {
+        color: #6c757d; /* Bootstrap's text-muted color */
+    }
