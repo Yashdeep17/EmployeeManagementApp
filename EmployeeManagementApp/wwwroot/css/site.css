@@ -23,39 +23,71 @@ body {
 
 /* Custom Global Theme Colors */
 /* NEW Professional Blue Theme */
-:root {
-    /* A deep, trustworthy blue primary color */
-    --bs-primary: #0d6efd;
-    --bs-primary-rgb: 13, 110, 253;
-    --bs-primary-hover: #0b5ed7;
+/* ==========================================
+   GLOBAL HR PORTAL COLOR PALETTE
+   ========================================== */
+:root, [data-bs-theme="light"] {
+    /* Primary Brand Colors */
+    --brand-primary: #8bc34a; /* The main vibrant green */
+    --brand-primary-hover: #7cb342; /* Darker green for button hovers */
+    --brand-primary-light: #dcedc8; /* The soft green background from the login page */
+    /* Backgrounds & Surfaces */
+    --bg-main: #f8f9fa; /* Very soft gray for the main website background */
+    --surface-card: #ffffff; /* Pure white for cards and forms */
+    /* Text Colors */
+    --text-main: #212529; /* Nearly black for main headings */
+    --text-muted: #6c757d; /* Soft gray for subtitles and labels */
+    /* Borders */
+    --border-light: #e0e0e0; /* Subtle borders for inputs and dividers */
+    /* Override Bootstrap Defaults */
+    --bs-primary: var(--brand-primary);
+    --bs-body-bg: var(--bg-main);
+    --bs-body-color: var(--text-main);
 }
 
-/* A style for the new full-screen background */
-.login-background-container {
-    /* Use a professional placeholder image from Unsplash */
-    background: url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
-    background-size: cover;
-    /* Add a dark blue gradient overlay so white text pops */
-    position: relative;
+/* Dark Mode Overrides */
+[data-bs-theme="dark"] {
+    /* Backgrounds & Surfaces */
+    --bg-main: #121212; /* Deep charcoal background */
+    --surface-card: #1e1e1e; /* Slightly lighter charcoal for cards */
+    --brand-primary-light: #2c3e20; /* Dark, muted green for dark mode containers */
+    /* Text Colors */
+    --text-main: #e9ecef; /* Soft white for text */
+    --text-muted: #adb5bd; /* Lighter gray for subtitles */
+    /* Borders */
+    --border-light: #343a40; /* Dark gray borders */
+    /* Override Bootstrap Defaults */
+    --bs-body-bg: var(--bg-main);
+    --bs-body-color: var(--text-main);
 }
 
-    /* The overlay layer */
-    .login-background-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        /* A deep blue-to-teal gradient fade */
-        background: linear-gradient(135deg, rgba(13, 110, 253, 0.8) 0%, rgba(13, 202, 240, 0.6) 100%);
-        z-index: 1;
+/* ==========================================
+   GLOBAL COMPONENT STYLING
+   ========================================== */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card {
+    background-color: var(--surface-card);
+    border: 1px solid var(--border-light);
+}
+
+.btn-primary {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: #ffffff !important;
+}
+
+    .btn-primary:hover {
+        background-color: var(--brand-primary-hover);
+        border-color: var(--brand-primary-hover);
     }
 
-/* Ensure the content sits above the overlay */
-.login-content-wrapper {
-    position: relative;
-    z-index: 2;
+.text-primary {
+    color: var(--brand-primary) !important;
 }
 
 .text-primary {
