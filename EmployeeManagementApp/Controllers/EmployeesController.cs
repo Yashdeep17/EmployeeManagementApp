@@ -8,18 +8,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Identity;
 
 namespace EmployeeManagementApp.Controllers
 {
     public class EmployeesController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly UserManager<IdentityUser> _userManager; // NEW: The security manager
 
-        public EmployeesController(AppDbContext context, IWebHostEnvironment webHostEnvironment)
+        // Update the constructor to accept the UserManager
+        public EmployeesController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _userManager = userManager; // Assign it
         }
 
         // GET: Employees
@@ -95,16 +99,39 @@ namespace EmployeeManagementApp.Controllers
 
                     // 5. Save the file name to the database
                     employee.ProfilePicture = uniqueFileName;
+
                 }
+                var user = new IdentityUser
+                {
+                    UserName = employee.Email,
+                    Email = employee.Email,
+                    EmailConfirmed = false // They haven't done the OTP yet!
+                };
 
-                _context.Add(employee);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Employee created successfully!";
-                return RedirectToAction(nameof(Index));
+                // 2. Create the account with a standard default password
+                // (We will force them to change this later)
+                var result = await _userManager.CreateAsync(user, "Welcome@123!");
+
+                if (result.Succeeded)
+                {
+                    // 3. If account creation worked, save the HR record to the database
+                    _context.Add(employee);
+                    await _context.SaveChangesAsync();
+
+                    // NOTE: This is exactly where we will add the Email OTP logic next!
+
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    // If the password was too weak or email already exists, show the error
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(employee);
+                }
             }
-
-            // Reload Department list if error
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
             return View(employee);
         }
 

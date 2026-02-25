@@ -100,10 +100,15 @@ namespace EmployeeManagementApp.Areas.Identity.Pages.Account
         }
 
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
-            ReturnUrl = returnUrl;
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            // SECURITY LOCKDOWN: Public registration is disabled.
+            // Redirect anyone who tries to access this page to the Login page.
+            return RedirectToPage("/Account/Login");
+
+            /* Keep the rest of the existing code below it, it won't execute anyway */
+            // ReturnUrl = returnUrl;
+            // ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
