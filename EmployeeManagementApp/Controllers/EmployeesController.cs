@@ -9,21 +9,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+
 
 namespace EmployeeManagementApp.Controllers
 {
     public class EmployeesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly UserManager<IdentityUser> _userManager; // NEW: The security manager
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IEmailSender _emailSender; // NEW: The Email Engine
 
-        // Update the constructor to accept the UserManager
-        public EmployeesController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<IdentityUser> userManager)
+        // Update constructor to accept IEmailSender
+        public EmployeesController(AppDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<IdentityUser> userManager, IEmailSender emailSender)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
-            _userManager = userManager; // Assign it
+            _userManager = userManager;
+            _emailSender = emailSender; // Assign it
         }
 
         // GET: Employees
@@ -105,7 +109,7 @@ namespace EmployeeManagementApp.Controllers
                 {
                     UserName = employee.Email,
                     Email = employee.Email,
-                    EmailConfirmed = false // They haven't done the OTP yet!
+                    EmailConfirmed = true // They haven't done the OTP yet!
                 };
 
                 // 2. Create the account with a standard default password
@@ -114,11 +118,46 @@ namespace EmployeeManagementApp.Controllers
 
                 if (result.Succeeded)
                 {
-                    // 3. If account creation worked, save the HR record to the database
+                    // 1. Save the HR record to the database
                     _context.Add(employee);
                     await _context.SaveChangesAsync();
 
-                    // NOTE: This is exactly where we will add the Email OTP logic next!
+                    // ==========================================
+                    // NEW: GENERATE OTP AND SEND EMAIL
+                    // ==========================================
+
+                    // 2. Generate a random 6-digit code
+                    string otpCode = new Random().Next(100000, 999999).ToString();
+
+                    // 3. Save the OTP securely in the Identity Tokens table
+                    await _userManager.SetAuthenticationTokenAsync(user, "Default", "EmailOTP", otpCode);
+
+                    // 4. Design the Welcome Email
+                    string subject = "Welcome to HR Portal - Your Verification Code";
+                    string htmlMessage = $@"
+                <div style='font-family: Arial, sans-serif; padding: 30px; text-align: center; background-color: #f8f9fa; border-radius: 10px;'>
+                    <h2 style='color: #212529;'>Welcome to the Team!</h2>
+                    <p style='color: #6c757d; font-size: 16px;'>Your corporate profile has been successfully provisioned.</p>
+                    <p style='font-size: 16px;'>Your temporary login password is: <b style='color: #0d6efd;'>Welcome@123!</b></p>
+                    <div style='margin: 30px 0;'>
+                        <p style='color: #6c757d; margin-bottom: 5px;'>Your 6-digit verification code is:</p>
+                        <h1 style='color: #8bc34a; letter-spacing: 8px; font-size: 40px; margin: 0;'>{otpCode}</h1>
+                    </div>
+                    <p style='color: #6c757d; font-size: 14px;'>Please log in to the portal and enter this code to verify your account and change your password.</p>
+                </div>";
+
+                    // 5. Fire off the email!
+                    // 5. Fire off the email safely and catch any errors!
+                    try
+                    {
+                        await _emailSender.SendEmailAsync(user.Email, subject, htmlMessage);
+                        TempData["Success"] = "Employee created and OTP Email sent successfully!";
+                    }
+                    catch (Exception ex)
+                    {
+                        // If Google blocks the email, it will save the exact error reason here
+                        TempData["Error"] = "Email failed to send: " + ex.Message;
+                    }
 
                     return RedirectToAction(nameof(Index));
                 }
