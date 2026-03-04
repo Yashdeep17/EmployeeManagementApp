@@ -21,11 +21,13 @@ namespace EmployeeManagementApp.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, UserManager<IdentityUser> userManager)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -104,14 +106,42 @@ namespace EmployeeManagementApp.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                // ==========================================
+                // 1. THE ULTIMATE INTERCEPT (CHECK EMAIL OR USERNAME)
+                // ==========================================
+                var user = await _userManager.FindByEmailAsync(Input.Email) ?? await _userManager.FindByNameAsync(Input.Email);
+
+                if (user != null)
+                {
+                    // 🚨 Emergency Admin Unlock
+                    if (user.Email == "yashdeep.writer17@gmail.com" && !user.EmailConfirmed)
+                    {
+                        user.EmailConfirmed = true;
+                        await _userManager.UpdateAsync(user);
+                    }
+
+                    // Verify their password manually
+                    var isPasswordValid = await _userManager.CheckPasswordAsync(user, Input.Password);
+
+                    // IF Password is correct BUT Email is unverified -> KICK TO OTP SCREEN!
+                    if (isPasswordValid && !user.EmailConfirmed)
+                    {
+                        // Revoke any login cookies instantly to secure the doors
+                        await _signInManager.SignOutAsync();
+
+                        // Redirect to OTP using their REAL database email, not what they typed
+                        return RedirectToPage("./VerifyOTP", new { email = user.Email, returnUrl = returnUrl });
+                    }
+                }
+                // ==========================================
+
+                // 2. Normal Login (Only runs if they are fully verified)
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -133,7 +163,6 @@ namespace EmployeeManagementApp.Areas.Identity.Pages.Account
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
     }
