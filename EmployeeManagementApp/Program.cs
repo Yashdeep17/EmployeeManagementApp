@@ -45,4 +45,27 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
+// ==========================================
+// AUTOMATIC ROLE SEEDER
+// ==========================================
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole>>();
+
+    // The roles we want our app to have
+    string[] roleNames = { "Admin", "Employee" };
+
+    foreach (var roleName in roleNames)
+    {
+        // Check if the role exists in the database
+        var roleExist = await roleManager.RoleExistsAsync(roleName);
+        if (!roleExist)
+        {
+            // If it doesn't exist, create it!
+            await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole(roleName));
+        }
+    }
+}
+// ==========================================
+
 app.Run();

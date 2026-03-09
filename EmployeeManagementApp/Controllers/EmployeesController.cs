@@ -114,51 +114,42 @@ namespace EmployeeManagementApp.Controllers
 
                 // 2. Create the account with a standard default password
                 // (We will force them to change this later)
-                var result = await _userManager.CreateAsync(user, "Welcome@123!");
+                // 1. Generate a completely random, impossible password so they CANNOT log in yet
+                var randomPassword = Guid.NewGuid().ToString() + "A!1a";
+                var result = await _userManager.CreateAsync(user, randomPassword);
 
                 if (result.Succeeded)
                 {
-                    // 1. Save the HR record to the database
+                    // Assign role (keep your existing role code here if you have it)
+                    await _userManager.AddToRoleAsync(user, "Employee");
+
                     _context.Add(employee);
                     await _context.SaveChangesAsync();
+                    // 2. Generate a secure, one-time-use activation token
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-                    // ==========================================
-                    // NEW: GENERATE OTP AND SEND EMAIL
-                    // ==========================================
+                    // 3. Create the clickable link that points to our new Activate page
+                    var callbackUrl = Url.Page(
+                        "/Account/Activate",
+                        pageHandler: null,
+                        values: new { area = "Identity", email = user.Email, token = token },
+                        protocol: Request.Scheme);
 
-                    // 2. Generate a random 6-digit code
-                    string otpCode = new Random().Next(100000, 999999).ToString();
-
-                    // 3. Save the OTP securely in the Identity Tokens table
-                    await _userManager.SetAuthenticationTokenAsync(user, "Default", "EmailOTP", otpCode);
-
-                    // 4. Design the Welcome Email
-                    string subject = "Welcome to HR Portal - Your Verification Code";
+                    // 4. Send the beautiful "Activate Account" email
+                    string subject = "Welcome to the HR Portal - Activate Your Account";
                     string htmlMessage = $@"
-                <div style='font-family: Arial, sans-serif; padding: 30px; text-align: center; background-color: #f8f9fa; border-radius: 10px;'>
-                    <h2 style='color: #212529;'>Welcome to the Team!</h2>
-                    <p style='color: #6c757d; font-size: 16px;'>Your corporate profile has been successfully provisioned.</p>
-                    <p style='font-size: 16px;'>Your temporary login password is: <b style='color: #0d6efd;'>Welcome@123!</b></p>
-                    <div style='margin: 30px 0;'>
-                        <p style='color: #6c757d; margin-bottom: 5px;'>Your 6-digit verification code is:</p>
-                        <h1 style='color: #8bc34a; letter-spacing: 8px; font-size: 40px; margin: 0;'>{otpCode}</h1>
-                    </div>
-                    <p style='color: #6c757d; font-size: 14px;'>Please log in to the portal and enter this code to verify your account and change your password.</p>
-                </div>";
+                    <div style='font-family: Arial, sans-serif; text-align: center; padding: 20px;'>
+                        <h2 style='color: #2e7d32;'>Welcome to the Team!</h2>
+                        <p style='font-size: 16px; color: #555;'>Your HR Portal account has been created. Please click the button below to set your password and activate your account.</p>
+                        <br/>
+                        <a href='{callbackUrl}' style='display: inline-block; padding: 12px 24px; background-color: #8bc34a; color: white; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px;'>Activate Account</a>
+                        <br/><br/>
+                        <p style='font-size: 12px; color: #999;'>If the button doesn't work, copy and paste this link into your browser: <br/>{callbackUrl}</p>
+                    </div>";
 
-                    // 5. Fire off the email!
-                    // 5. Fire off the email safely and catch any errors!
-                    try
-                    {
-                        await _emailSender.SendEmailAsync(user.Email, subject, htmlMessage);
-                        TempData["Success"] = "Employee created and OTP Email sent successfully!";
-                    }
-                    catch (Exception ex)
-                    {
-                        // If Google blocks the email, it will save the exact error reason here
-                        TempData["Error"] = "Email failed to send: " + ex.Message;
-                    }
+                    await _emailSender.SendEmailAsync(user.Email, subject, htmlMessage);
 
+                    TempData["Success"] = "Employee created and Activation Link sent successfully!";
                     return RedirectToAction(nameof(Index));
                 }
                 else
