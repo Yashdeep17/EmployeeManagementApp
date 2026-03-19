@@ -28,25 +28,29 @@
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between align-items-center">
 
-                    <ul class="navbar-nav flex-grow-1 mb-2 mb-lg-0 mt-2 mt-lg-0">
+                    <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold px-3" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house-door me-1"></i> Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link fw-semibold px-3" asp-area="" asp-controller="Employees" asp-action="Index">
-                                <i class="bi bi-people me-1"></i> Directory
-                            </a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
 
-                        @if (User.IsInRole("Admin"))
+                        @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item border-start ms-2 ps-2">
-                                <a class="nav-link text-primary fw-bold px-3" asp-area="" asp-controller="Dashboard" asp-action="Index">
-                                    <i class="bi bi-graph-up-arrow me-1"></i> Analytics
-                                </a>
-                            </li>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Employees" asp-action="Index">
+                                        <i class="bi bi-folder-fill text-success"></i> Directory
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Employees" asp-action="MyProfile">
+                                        <i class="bi bi-person-badge-fill text-success"></i> My Profile
+                                    </a>
+                                </li>
+                            }
                         }
                     </ul>
 

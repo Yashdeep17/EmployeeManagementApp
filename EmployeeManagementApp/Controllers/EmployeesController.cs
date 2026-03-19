@@ -67,7 +67,7 @@ namespace EmployeeManagementApp.Controllers
 
         // GET: Employees/Create
         // GET: Employees/Create
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             // Fetch departments from DB. "Id" is the value saved, "Name" is the text shown.
@@ -77,7 +77,7 @@ namespace EmployeeManagementApp.Controllers
 
         // POST: Employees/Create
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Employee employee)
         {
@@ -167,7 +167,7 @@ namespace EmployeeManagementApp.Controllers
 
         // GET: Employees/Edit/5
         // GET: Employees/Edit/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -192,7 +192,7 @@ namespace EmployeeManagementApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         // FIX: Bind "DepartmentId" instead of "Department"
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,DepartmentId,Salary,DateOfJoining,Email")] Employee employee)
@@ -270,6 +270,30 @@ namespace EmployeeManagementApp.Controllers
         private bool EmployeeExists(int id)
         {
             return _context.Employees.Any(e => e.Id == id);
+        }
+
+        // GET: Employees/MyProfile
+        [Authorize] // Notice there is no specific role here! Any logged-in user can access this.
+        public async Task<IActionResult> MyProfile()
+        {
+            // 1. Identify who is currently logged into the browser
+            var currentUserEmail = User.Identity?.Name;
+
+            if (string.IsNullOrEmpty(currentUserEmail))
+            {
+                return RedirectToPage("/Account/Login", new { area = "Identity" });
+            }
+
+            // 2. Search the HR database for the employee with that exact email
+            var employeeRecord = await _context.Employees.FirstOrDefaultAsync(m => m.Email == currentUserEmail);
+
+            if (employeeRecord == null)
+            {
+                return NotFound("HR Record not found for this user. Please contact your Administrator.");
+            }
+
+            // 3. Send their specific data to the screen
+            return View(employeeRecord);
         }
     }
 }

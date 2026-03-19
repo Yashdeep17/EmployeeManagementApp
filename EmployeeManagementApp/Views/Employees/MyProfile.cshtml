@@ -1,0 +1,51 @@
+﻿@model EmployeeManagementApp.Models.Employee
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header text-white rounded-top-4 d-flex align-items-center gap-3" style="background-color: #8bc34a; padding: 1.5rem;">
+                    <div class="bg-white rounded-circle d-flex justify-content-center align-items-center shadow-sm" style="width: 80px; height: 80px;">
+                        <i class="bi bi-person-fill" style="font-size: 3rem; color: #8bc34a;"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-0 fw-bold">@Model.FullName</h2>
+                        <p class="mb-0 text-white-50" style="font-size: 1.1rem;">@Model.Department</p>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <h5 class="fw-bold text-white border-bottom border-secondary pb-2 mb-4">Official Details</h5>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-white-50 fw-bold">Email Address</div>
+                        <div class="col-sm-8 text-white fs-5">@Model.Email</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-white-50 fw-bold">Position / Title</div>
+                        <div class="col-sm-8 text-white fs-5">@Model.Department</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-white-50 fw-bold">Salary</div>
+                        <div class="col-sm-8 text-white fs-5">
+                            @String.Format("{0:C}", Model.Salary)
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-white-50 fw-bold">Status</div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-success rounded-pill px-3 py-2">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
